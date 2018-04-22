@@ -54,7 +54,7 @@ public class MusicTypesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_music_types, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        musicTypesAdapter = new MusicTypesAdapter(musicTypeModels);
+        musicTypesAdapter = new MusicTypesAdapter(musicTypeModels, getContext());
         rvMusicTypes.setAdapter(musicTypesAdapter);
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(

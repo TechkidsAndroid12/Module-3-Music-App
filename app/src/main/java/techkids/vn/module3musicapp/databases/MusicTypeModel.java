@@ -1,10 +1,12 @@
 package techkids.vn.module3musicapp.databases;
 
+import java.io.Serializable;
+
 /**
  * Created by qklahpita on 4/15/18.
  */
 
-public class MusicTypeModel {
+public class MusicTypeModel implements Serializable{
     public String id;
     public String name;
     public int imageID;
