@@ -3,6 +3,7 @@ package techkids.vn.module3musicapp.fragments;
 
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +25,17 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import techkids.vn.module3musicapp.R;
 import techkids.vn.module3musicapp.adapters.TopSongAdapter;
 import techkids.vn.module3musicapp.databases.MusicTypeModel;
 import techkids.vn.module3musicapp.databases.TopSongModel;
+import techkids.vn.module3musicapp.network.MusicService;
+import techkids.vn.module3musicapp.network.RetrofitInstance;
+import techkids.vn.module3musicapp.network.TopSongResponse;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,6 +59,11 @@ public class TopSongsFragment extends Fragment {
 
     TopSongAdapter topSongAdapter;
     List<TopSongModel> topSongModels = new ArrayList<>();
+    MusicTypeModel musicTypeModel;
+    @BindView(R.id.av_loading)
+    AVLoadingIndicatorView avLoading;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
 
     public TopSongsFragment() {
         // Required empty public constructor
@@ -62,7 +76,7 @@ public class TopSongsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_top_songs, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        MusicTypeModel musicTypeModel = (MusicTypeModel) getArguments()
+        musicTypeModel = (MusicTypeModel) getArguments()
                 .getSerializable("music_type_model");
         Picasso.get().load(musicTypeModel.imageID).into(ivMusicType);
         tvMusicType.setText(musicTypeModel.name);
@@ -88,19 +102,42 @@ public class TopSongsFragment extends Fragment {
             }
         });
 
-        TopSongModel topSongModel = new TopSongModel(
-                "",
-                "https://is1-ssl.mzstatic.com/image/thumb/Music30/v4/be/0f/c8/be0fc843-4194-f185-7a82-e7eab8668a67/THCA-60099.jpg/55x55bb-85.png",
-                "You Say Run",
-                "ABCD"
-        );
-        topSongModels.add(topSongModel);
-
         topSongAdapter = new TopSongAdapter(topSongModels);
         rvTopSongs.setAdapter(topSongAdapter);
         rvTopSongs.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvTopSongs.setItemAnimator(new SlideInLeftAnimator());
+
+        loadTopSongs();
 
         return view;
+    }
+
+    private void loadTopSongs() {
+        MusicService musicService = RetrofitInstance.getRetrofitInstance()
+                .create(MusicService.class);
+        musicService.getTopSongs(musicTypeModel.id).enqueue(new Callback<TopSongResponse>() {
+            @Override
+            public void onResponse(Call<TopSongResponse> call, Response<TopSongResponse> response) {
+                avLoading.hide();
+
+                List<TopSongResponse.Feed.Entry> entries = response.body().feed.entry;
+                for (TopSongResponse.Feed.Entry entry : entries) {
+                    TopSongModel topSongModel = new TopSongModel(
+                            "",
+                            entry.image.get(2).label,
+                            entry.name.label,
+                            entry.artist.label
+                    );
+                    topSongModels.add(topSongModel);
+                    topSongAdapter.notifyItemChanged(entries.indexOf(entry));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TopSongResponse> call, Throwable t) {
+                Log.d(TAG, "onFailure: ");
+            }
+        });
     }
 
     @Override
