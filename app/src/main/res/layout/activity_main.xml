@@ -10,6 +10,7 @@
 
     <RelativeLayout
         android:id="@+id/rl_mini"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
@@ -17,7 +18,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary">
+            android:background="@color/colorPrimaryDark">
 
             <ImageView
                 android:id="@+id/iv_top_song"

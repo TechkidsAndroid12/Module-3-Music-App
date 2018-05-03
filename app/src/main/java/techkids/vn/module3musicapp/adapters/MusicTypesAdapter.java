@@ -2,7 +2,6 @@ package techkids.vn.module3musicapp.adapters;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +39,7 @@ public class MusicTypesAdapter extends RecyclerView.Adapter<MusicTypesAdapter.Mu
     @Override
     public MusicTypesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View itemView = layoutInflater.inflate(R.layout.item_list_music, parent,false);
+        View itemView = layoutInflater.inflate(R.layout.item_list_music, parent, false);
         return new MusicTypesViewHolder(itemView);
     }
 
