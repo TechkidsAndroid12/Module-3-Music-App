@@ -24,7 +24,9 @@ import techkids.vn.module3musicapp.R;
 import techkids.vn.module3musicapp.adapters.ViewPagerAdapter;
 import techkids.vn.module3musicapp.databases.TopSongModel;
 import techkids.vn.module3musicapp.events.OnClickTopSong;
+import techkids.vn.module3musicapp.fragments.MainPlayerFragment;
 import techkids.vn.module3musicapp.utils.MusicHandle;
+import techkids.vn.module3musicapp.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -78,9 +80,11 @@ public class MainActivity extends AppCompatActivity {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewpager.setAdapter(viewPagerAdapter);
         viewpager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tablayout));
+
+        sbMini.setPadding(0, 0, 0, 0);
     }
 
-    @Subscribe
+    @Subscribe(sticky = true)
     public void onReceivedTopSong(OnClickTopSong onClickTopSong) {
         TopSongModel topSongModel = onClickTopSong.topSongModel;
 
@@ -92,10 +96,30 @@ public class MainActivity extends AppCompatActivity {
                 .into(ivTopSong);
 
         MusicHandle.getSearchSong(topSongModel, this);
+        MusicHandle.updateRealtimeUI(sbMini, fbPlay, null, null, ivTopSong);
     }
 
-    @OnClick(R.id.fb_play)
-    public void onViewClicked() {
 
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
+            super.onBackPressed();
+        } else {
+            moveTaskToBack(true);
+        }
+    }
+
+    @OnClick({R.id.fb_play, R.id.rl_mini})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.fb_play:
+                MusicHandle.playPause();
+                break;
+            case R.id.rl_mini:
+                Utils.openFragment(getSupportFragmentManager(),
+                        R.id.rl_main,
+                        new MainPlayerFragment());
+                break;
+        }
     }
 }
