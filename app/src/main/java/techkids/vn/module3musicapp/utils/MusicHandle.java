@@ -27,7 +27,7 @@ public class MusicHandle {
     private static HybridMediaPlayer hybridMediaPlayer;
     private static boolean keepUpdate = true;
 
-    public static void getSearchSong(TopSongModel topSongModel, final Context context) {
+    public static void getSearchSong(final TopSongModel topSongModel, final Context context) {
         MusicService musicService = RetrofitInstance.getRetrofitInstance()
                 .create(MusicService.class);
         musicService.getSearchSong(topSongModel.song
@@ -35,7 +35,7 @@ public class MusicHandle {
             @Override
             public void onResponse(Call<SearchSongResponse> call, Response<SearchSongResponse> response) {
                 String url = response.body().data.url;
-                getLocationSong(url, context);
+                getLocationSong(url, context, topSongModel);
             }
 
             @Override
@@ -45,12 +45,14 @@ public class MusicHandle {
         });
     }
 
-    public static void getLocationSong(String url, final Context context) {
+    public static void getLocationSong(String url, final Context context, final TopSongModel topSongModel) {
         MusicService musicService = RetrofitInstance.getRetrofitXMLInstance()
                 .create(MusicService.class);
         musicService.getLocation(url.split("=")[1]).enqueue(new Callback<LocationResponse>() {
             @Override
             public void onResponse(Call<LocationResponse> call, Response<LocationResponse> response) {
+                String url = response.body().trackXML.location.trim();
+                topSongModel.url = url;
 
                 if (hybridMediaPlayer != null) {
                     if (hybridMediaPlayer.isPlaying()) {
@@ -60,7 +62,7 @@ public class MusicHandle {
                 }
 
                 hybridMediaPlayer = HybridMediaPlayer.getInstance(context);
-                hybridMediaPlayer.setDataSource(response.body().trackXML.location.trim());
+                hybridMediaPlayer.setDataSource(url);
                 hybridMediaPlayer.prepare();
                 hybridMediaPlayer.setOnPreparedListener(new HybridMediaPlayer.OnPreparedListener() {
                     @Override

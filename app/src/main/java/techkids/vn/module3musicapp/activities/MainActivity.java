@@ -12,6 +12,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -91,9 +92,19 @@ public class MainActivity extends AppCompatActivity {
         rlMini.setVisibility(View.VISIBLE);
         tvSong.setText(topSongModel.song);
         tvArtist.setText(topSongModel.artist);
-        Picasso.get().load(topSongModel.image)
-                .transform(new CropCircleTransformation())
-                .into(ivTopSong);
+
+        Transformation transformation = new CropCircleTransformation();
+        if (topSongModel.image == null) {
+            Picasso.get()
+                    .load(R.drawable.offline_music)
+                    .transform(transformation)
+                    .into(ivTopSong);
+        } else {
+            Picasso.get()
+                    .load(topSongModel.image)
+                    .transform(transformation)
+                    .into(ivTopSong);
+        }
 
         MusicHandle.getSearchSong(topSongModel, this);
         MusicHandle.updateRealtimeUI(sbMini, fbPlay, null, null, ivTopSong);

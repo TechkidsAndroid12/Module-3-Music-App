@@ -13,6 +13,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -25,6 +26,7 @@ import jp.wasabeef.picasso.transformations.CropCircleTransformation;
 import techkids.vn.module3musicapp.R;
 import techkids.vn.module3musicapp.databases.TopSongModel;
 import techkids.vn.module3musicapp.events.OnClickTopSong;
+import techkids.vn.module3musicapp.utils.DownloadHandle;
 import techkids.vn.module3musicapp.utils.MusicHandle;
 
 /**
@@ -90,6 +92,7 @@ public class MainPlayerFragment extends Fragment {
                 getActivity().onBackPressed();
                 break;
             case R.id.iv_download:
+                DownloadHandle.downloadSong(getContext(), topSongModel);
                 break;
             case R.id.iv_pre:
                 break;
@@ -108,8 +111,25 @@ public class MainPlayerFragment extends Fragment {
         tvSongName.setText(topSongModel.song);
         tvSingerName.setText(topSongModel.artist);
 
-        Picasso.get().load(topSongModel.image)
-                .transform(new CropCircleTransformation()).into(ivSong);
+        Transformation transformation = new CropCircleTransformation();
+        if (topSongModel.image == null) {
+            Picasso.get()
+                    .load(R.drawable.offline_music)
+                    .transform(transformation)
+                    .into(ivSong);
+        } else {
+            Picasso.get()
+                    .load(topSongModel.image)
+                    .transform(transformation)
+                    .into(ivSong);
+        }
+
+        if (DownloadHandle.checkIfDownloaded(topSongModel, getContext())) {
+            ivDownload.setAlpha(0.3f);
+            ivDownload.setClickable(false);
+        } else {
+            ivDownload.setAlpha(1f);
+        }
 
         MusicHandle.updateRealtimeUI(sbMain, fbPlay, tvCurrentTimeSong, tvDurationTimeSong, ivSong);
     }

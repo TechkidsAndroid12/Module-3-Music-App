@@ -40,7 +40,7 @@ public class Utils {
 
         if (isPlaying) {
            if (imageView.getAnimation() == null) {
-               imageView.setAnimation(rotateAnimation);
+               imageView.startAnimation(rotateAnimation);
                Log.d(TAG, "rotateImage: " + imageView.getId());
            }
         } else {

@@ -68,11 +68,17 @@ public class TopSongAdapter extends RecyclerView.Adapter<TopSongAdapter.TopSongV
 
         public void setData(final TopSongModel topSongModel) {
             Transformation transformation = new CropCircleTransformation();
-
-            Picasso.get()
-                    .load(topSongModel.image)
-                    .transform(transformation)
-                    .into(ivTopSong);
+            if (topSongModel.image == null) {
+                Picasso.get()
+                        .load(R.drawable.offline_music)
+                        .transform(transformation)
+                        .into(ivTopSong);
+            } else {
+                Picasso.get()
+                        .load(topSongModel.image)
+                        .transform(transformation)
+                        .into(ivTopSong);
+            }
             tvSong.setText(topSongModel.song);
             tvArtist.setText(topSongModel.artist);
 
